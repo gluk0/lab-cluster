@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - gitrepository.yaml
+  - secret-values.yaml
   - helmrelease.yaml
   - istio-gateway.yaml
   - istio-virtualservice.yaml
