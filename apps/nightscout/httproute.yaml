@@ -1,0 +1,17 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: nightscout
+  namespace: cloudflare-gateway
+spec:
+  parentRefs:
+  - name: homelab-gateway
+    namespace: cloudflare-gateway
+  hostnames:
+  - nightscout.gluk0.sh
+  rules:
+  - backendRefs:
+    - name: istio-ilb-gateway
+      namespace: istio-system
+      port: 80

@@ -1,0 +1,21 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: website
+  namespace: gluk0
+spec:
+  hosts:
+  - "gluk0.sh"
+  - "www.gluk0.sh"
+  gateways:
+  - website-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: website.gluk0.svc.cluster.local
+        port:
+          number: 80

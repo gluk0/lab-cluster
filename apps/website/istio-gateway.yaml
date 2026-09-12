@@ -1,0 +1,17 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: website-gateway
+  namespace: gluk0
+spec:
+  selector:
+    istio: ilb-gateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "gluk0.sh"
+    - "www.gluk0.sh"

@@ -1,0 +1,154 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nightscout
+  namespace: nightscout
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: ./
+      sourceRef:
+        kind: GitRepository
+        name: helm-nightscout
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+    timeout: 10m
+  upgrade:
+    remediation:
+      retries: 3
+    timeout: 10m
+  # Sensitive values (mongodb.auth.password, ...) come from the
+  # SOPS-encrypted nightscout-secret-values Secret. See docs/secrets.md.
+  valuesFrom:
+    - kind: Secret
+      name: nightscout-secret-values
+      valuesKey: values.yaml
+  values:
+    global:
+      imagePullSecrets:
+        - dockerhub-pull-secret
+
+    image:
+      repository: nightscout/cgm-remote-monitor
+      tag: "15.0.3"
+
+    replicaCount: 1
+
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+
+    service:
+      type: ClusterIP
+      port: 1337
+
+    # External routing is handled by the Cloudflare HTTPRoute + Istio
+    # Gateway/VirtualService in this directory; the chart ingress stays off.
+    ingress:
+      enabled: false
+
+    # NOTE: Flannel does not enforce NetworkPolicy. These policies are kept
+    # as documentation of intent and become effective if a policy engine
+    # (e.g. Calico policy-only) is added to infrastructure/networking.
+    networkPolicy:
+      enabled: true
+      ingress:
+        enabled: true
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: istio-system
+      egress:
+        enabled: true
+        allowExternal: true
+
+    # MongoDB is integrated into the chart.
+    # auth.password is supplied via valuesFrom (nightscout-secret-values).
+    mongodb:
+      enabled: true
+      image:
+        tag: "latest"
+      auth:
+        enabled: true
+        database: nightscout
+        username: nightscout
+      persistence:
+        enabled: true
+        size: 8Gi
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 250m
+          memory: 256Mi
+
+    startupProbe:
+      enabled: true
+      probe:
+        httpGet:
+          path: /api/v1/status
+          port: http
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 180  # 180 * 10s = 30 minutes max startup time
+
+    livenessProbe:
+      httpGet:
+        path: /api/v1/status
+        port: http
+        scheme: HTTP
+      initialDelaySeconds: 60
+      periodSeconds: 30
+      timeoutSeconds: 10
+      failureThreshold: 3
+
+    readinessProbe:
+      httpGet:
+        path: /api/v1/status
+        port: http
+        scheme: HTTP
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+
+    nightscout:
+      # MongoDB URI and API secret will be auto-generated
+      # Leave commented to use integrated MongoDB and auto-generated secret
+
+      baseUrl: "https://nightscout.gluk0.sh"
+
+      security:
+        insecureUseHttp: true  # TLS terminated at Cloudflare tunnel
+
+      enable:
+        - careportal
+        - boluscalc
+        - food
+        - rawbg
+        - iob
+        - cob
+        - bwp
+        - cage
+        - sage
+        - iage
+        - bage
+        - basal
+        - ar2
+        - treatmentnotify
+
+      auth:
+        defaultRoles: "readable"  # Allow viewing without auth, protect write operations
+
+      alarms:
+        types: "simple"

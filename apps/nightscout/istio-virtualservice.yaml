@@ -1,0 +1,20 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: nightscout
+  namespace: nightscout
+spec:
+  hosts:
+  - "nightscout.gluk0.sh"
+  gateways:
+  - nightscout-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: nightscout.nightscout.svc.cluster.local
+        port:
+          number: 1337

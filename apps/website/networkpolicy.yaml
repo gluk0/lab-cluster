@@ -1,0 +1,33 @@
+---
+# NOTE: Flannel does not enforce NetworkPolicy. This policy documents intent
+# and becomes effective if a policy engine (e.g. Calico policy-only) is added
+# to infrastructure/networking.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: website
+  namespace: gluk0
+spec:
+  podSelector:
+    matchLabels:
+      app: website
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: istio-system
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53

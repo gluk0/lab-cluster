@@ -1,0 +1,14 @@
+# SOPS configuration for encrypting Kubernetes Secrets before commit.
+#
+# Setup (one time):
+#   age-keygen -o age.agekey            # keep this file OUT of git
+#   # replace the placeholder below with the public key printed above
+#   kubectl create secret generic sops-age -n flux-system \
+#     --from-file=age.agekey
+#
+# Usage:
+#   sops --encrypt --in-place apps/<app>/secret-values.yaml
+creation_rules:
+  - path_regex: .*\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: age1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  # REPLACE with your age public key

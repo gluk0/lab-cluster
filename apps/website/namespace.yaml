@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gluk0
+  labels:
+    istio-injection: enabled
+    name: gluk0
