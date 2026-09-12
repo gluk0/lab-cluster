@@ -17,6 +17,7 @@ spec:
       interval: 12h
   dependsOn:
     - name: istiod
+  timeout: 10m
   install:
     remediation:
       retries: 3
