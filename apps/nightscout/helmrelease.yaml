@@ -55,9 +55,7 @@ spec:
     ingress:
       enabled: false
 
-    # NOTE: Flannel does not enforce NetworkPolicy. These policies are kept
-    # as documentation of intent and become effective if a policy engine
-    # (e.g. Calico policy-only) is added to infrastructure/networking.
+    # Enforced by Cilium.
     networkPolicy:
       enabled: true
       ingress:

@@ -1,0 +1,11 @@
+---
+# Lives in the networking layer (not infrastructure/sources) because the CNI
+# reconciles before everything else.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: cilium
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: https://helm.cilium.io

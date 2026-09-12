@@ -1,14 +1,14 @@
 # lab-cluster
 
 FluxCD repository for the `lab` homelab cluster, running on Talos Linux with
-Flannel as the CNI.
+Cilium as the CNI (kube-proxy-less).
 
 ## Layout
 
 ```text
 clusters/homelab/     Flux entry point (flux-system + one Kustomization per layer)
 infrastructure/
-  networking/         Flannel CNI (vendored, pinned)
+  networking/         Cilium CNI (HelmRelease, pinned)
   sources/            HelmRepository / GitRepository definitions
   controllers/        Operators and controllers (cert-manager, MetalLB, Istio, ...)
   configs/            CR instances that need the controllers' CRDs
@@ -21,7 +21,7 @@ scripts/              validate.sh - local kustomize build checks
 
 ```text
 flux-system
-  -> networking                      (Flannel CNI)
+  -> networking                      (Cilium CNI)
   -> infrastructure                  (sources + controllers)
   -> gateway-api-crds                (Gateway API standard CRDs)
   -> configs                         (issuers, pools, gateways)
@@ -34,14 +34,13 @@ that use them.
 
 ## Networking
 
-- **CNI**: Flannel, vendored and pinned in
-  `infrastructure/networking/flannel/`. The pod network `10.244.0.0/16` must
-  match `cluster.network.podSubnets` in the Talos machine config.
+- **CNI**: Cilium (`infrastructure/networking/cilium/`), pinned HelmRelease.
+  Runs with `kubeProxyReplacement` — the Talos machine config sets
+  `cni.name: none` and `proxy.disabled: true`, and Cilium reaches the API
+  server via Talos KubePrism (`localhost:7445`).
 - **Ingress path**: Cloudflare tunnel Gateway (`HTTPRoute`) -> Istio
   `istio-ilb-gateway` -> per-app Istio `Gateway`/`VirtualService` -> Service.
-- **NetworkPolicy**: Flannel does *not* enforce NetworkPolicy. The policies in
-  this repo document intent and become effective only if a policy engine
-  (e.g. Calico in policy-only mode) is added.
+- **NetworkPolicy**: enforced by Cilium.
 
 ## Getting started
 
