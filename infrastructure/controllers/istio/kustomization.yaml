@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - base.yaml
+  - cni.yaml
   - istiod.yaml
   - ilb-gateway.yaml
   - kiali.yaml

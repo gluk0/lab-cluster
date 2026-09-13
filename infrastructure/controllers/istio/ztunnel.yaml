@@ -1,14 +1,17 @@
 ---
+# ztunnel is the per-node DaemonSet that handles ambient mesh dataplane
+# traffic (mTLS, L4 authorization) for pods without sidecars. Required
+# for Istio ambient mode.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: istiod
+  name: ztunnel
   namespace: istio-system
 spec:
   interval: 30m
   chart:
     spec:
-      chart: istiod
+      chart: ztunnel
       version: 1.24.0
       sourceRef:
         kind: HelmRepository
@@ -24,10 +27,3 @@ spec:
   upgrade:
     remediation:
       retries: 3
-  values:
-    profile: ambient
-    pilot:
-      resources:
-        requests:
-          cpu: 100m
-          memory: 512Mi
