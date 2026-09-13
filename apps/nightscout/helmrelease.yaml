@@ -36,7 +36,7 @@ spec:
       repository: nightscout/cgm-remote-monitor
       tag: "15.0.3"
 
-    replicaCount: 1
+    replicaCount: 0
 
     resources:
       limits:
