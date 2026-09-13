@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   - base.yaml
   - cni.yaml
+  - ztunnel.yaml
   - istiod.yaml
   - ilb-gateway.yaml
   - kiali.yaml

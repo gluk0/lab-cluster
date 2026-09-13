@@ -4,7 +4,7 @@ kind: Namespace
 metadata:
   name: gluk0
   labels:
-    istio-injection: enabled
+    istio.io/dataplane-mode: ambient
     name: gluk0
     pod-security.kubernetes.io/enforce: privileged
     pod-security.kubernetes.io/audit: privileged
